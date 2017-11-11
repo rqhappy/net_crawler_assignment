@@ -48,27 +48,20 @@ int connection(const char * port, const char * address)
 void send_req(sock_d s, const char* url, CONN_STAT status)
 {
 	int url_len = (int)strlen(url);
-	int req_len = (14 + url_len + ua_len + a_len + conn_len + 1);
+	int req_len = (14 + url_len + ua_len + conn_len + 1);
 	if(status != NULL) req_len += status->host_len + status->refer_len;
 	//GET /* HTTP/1.1
 	//Host: 
 	//Connection: 
-	//User-Agent: 
-	//Accept:
-	//Referer:
+	//User-Agent:
 	//(\n)
 	char *req_line=(char*)malloc(sizeof(char)*req_len);
     strcat(req_line , "GET ");
 	strcat(req_line , url);
-    strcat(req_line , " HTTP/1.0\n");
-	if(status != NULL)
-	{
-		strcat(req_line , status->host);
-		strcat(req_line , status->refer);
-	}
+    strcat(req_line , " HTTP/1.1\n");
+    strcat(req_line , status->host);
 	strcat(req_line , conn);
 	strcat(req_line , user_agent);
-	strcat(req_line , accept_f);
 	strcat(req_line , "\n");
     printf("%s",req_line);
 	send(s, req_line, req_len, 0);
