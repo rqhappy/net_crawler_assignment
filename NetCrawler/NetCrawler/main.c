@@ -17,7 +17,12 @@ int main(int argc, const char * argv[]) {
     //char ip[50];
     //hostname_to_ip(argv[2],ip);
     sock_d sock = connection("8080","127.0.0.1");
-    send_req(sock, "/", NULL);
+    CONN_STAT index_state = (CONN_STAT)malloc(sizeof(CONN_STAT));
+    index_state->host = "Host: 127.0.0.1\n";
+    index_state->host_len = strlen(index_state->host);
+    index_state->refer = NULL;
+    index_state->refer_len = 0;
+    send_req(sock, "/", index_state);
     int len = analysis_head(sock);
     if(len == -1)
     {

@@ -4,9 +4,9 @@
 typedef int sock_d;
 typedef struct conn_state{
 		char* host;
-		int host_len;
+		unsigned long host_len;
 		char* refer;
-		int refer_len;
+		unsigned long refer_len;
 
 } *CONN_STAT;
 
@@ -27,8 +27,8 @@ int analysis_head(sock_d);
 unsigned char *recv_page(const unsigned long long, sock_d);
 void char_free(char *);
 
-static char* user_agent = "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36\n";
-static int ua_len = 138;
+static char* user_agent = "User-Agent: Spider\n";
+static int ua_len = 19;
 static char* accept_f = "Accept: text/html\n";
 static int a_len = 18;
 static char* conn = "Connection: keep-alive\n";
