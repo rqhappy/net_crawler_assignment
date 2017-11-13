@@ -114,6 +114,7 @@ char** search_url(unsigned char* page,int** fsm,int len)
         //printf("%d",ptr);
     }
     printf("search over\n");
+    printf("%d\n",num);
 //    for(int i = 0;i < num;i++)
 //        printf("%s\n",url[i]);
 //    for(int i = 0;i < num;i++)
