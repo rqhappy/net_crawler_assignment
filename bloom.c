@@ -19,7 +19,7 @@ BLOOM * bloom_init(size_t size, int n, ...)
 
     bloom->n = n;
     bloom->asize=size;
-
+    pthread_mutex_init(&testlock, NULL);
     return bloom;
 }
 
@@ -41,21 +41,23 @@ unsigned char bloom_get(unsigned char *a,size_t n)
 	return a[n/8] & (1<<(n%8));
 }
 
-void bloom_add(BLOOM *bloom, const char *s)
-{
-    size_t i;
-    for(i = 0; i < bloom->n; i++) {
-        bloom_set(bloom->a, bloom->funcs[i](s)%bloom->asize);
-    }
-}
-
 int bloom_check(BLOOM *bloom, const char *s)
 {
     size_t i;
-
+    int r = 1;
+    pthread_mutex_lock(&testlock);
     for(i = 0; i < bloom->n; i++) {
         if(!(bloom_get(bloom->a, bloom->funcs[i](s)%bloom->asize))) 
-		    return 0;
+        {
+            r = 0;
+            break;
+        }
     }
-    return 1;
+    for(i = 0; i < bloom->n; i++) {
+        bloom_set(bloom->a, bloom->funcs[i](s)%bloom->asize);
+    }
+    pthread_mutex_unlock(&testlock);
+    return r;
 }
+
+
