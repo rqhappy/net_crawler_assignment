@@ -6,7 +6,8 @@
 #include<limits.h>
 #include<stdarg.h>
 #include<stdlib.h>
-#define bloom_size 50000
+#include<pthread.h>
+#define bloom_size 100000
 typedef unsigned int (*hashfunc_t)(const char *);
 typedef struct {
     size_t asize;
@@ -18,8 +19,7 @@ BLOOM * bloom_init(size_t size, int n, ...);
 void bloom_destroy(BLOOM *bloom);
 void bloom_set(unsigned char *a,size_t n);
 unsigned char bloom_get(unsigned char *a,size_t n);
-void bloom_add(BLOOM *bloom, const char *s);
 int bloom_check(BLOOM *bloom, const char *s);
-
+static pthread_mutex_t testlock;
 
 #endif
