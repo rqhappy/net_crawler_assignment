@@ -48,6 +48,10 @@ void task(void* args)
     struct timeval timeout;
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
+    
+    //init bloom
+    BLOOM *bloom = bloom_init(bloom_size,10,simple_hash,RS_hash,JS_hash,
+                              PJW_hash,ELF_hash,BKDR_hash,SDBM_hash,DJB_hash,AP_hash,CRC_hash);
     while(1)
     {
         
@@ -90,6 +94,16 @@ void task(void* args)
             for (int j = 0; j < SOCK_PRE_T; j++) {
                 if(FD_ISSET(arg->socks[arg->number*SOCK_PRE_T+i], &sets)){
                     //read data
+                    int len = analysis_head(arg->socks[arg->number*SOCK_PRE_T+i]);
+                    if(len == -1)
+                    {
+                        printf("request fail");
+                    }
+                    unsigned char * page = recv_page(len, arg->socks[arg->number*SOCK_PRE_T+i]);
+                    int ** fsm = init_fsm();
+                    char ** url = search_url(page,fsm,len);
+                    
+                    
                 }
             }
             

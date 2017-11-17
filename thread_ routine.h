@@ -8,6 +8,8 @@
 #include <sys/select.h>
 #include "net_util.h"
 #include "linked_queue.h"
+#include "fsm.c"
+#include "bloom.c"
 
 
 struct arguments{
