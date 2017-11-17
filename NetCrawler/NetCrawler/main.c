@@ -28,15 +28,28 @@ int main(int argc, const char * argv[]) {
     {
         printf("request fail");
     }
-    BLOOM *bloom = bloom_init(50000,1,ELF_hash);
+    BLOOM *bloom = bloom_init(bloom_size,10,simple_hash,RS_hash,JS_hash,
+                              PJW_hash,ELF_hash,BKDR_hash,SDBM_hash,DJB_hash,AP_hash,CRC_hash);
     printf("init over\n");
-    bloom_destroy(bloom);
-    printf("destory over\n");
     unsigned char * page = recv_page(len, sock);
     printf("recv_page ok\n");
     //char page[]="<a href=\"/adasdafasdsffggfsd\"><a href=\"/adassdfsfdsffggfsd\"><a href=\"/adasdffsdgsffggfsd\"><a href=\"/adasdafasdsffggfsd\"><a href=\"/adassfggsdsffggfsd\">";
     int ** fsm = init_fsm();
     char ** url = search_url(page,fsm,len);
+    int i = 0;
+    int n = 0;
+    while(url[i] != NULL)
+    {
+        if(bloom_check(bloom,url[i]) == 0)
+        {
+            n++;
+            //入队
+        }
+        i++;
+    }
+    printf("%d\n",n);
+    bloom_destroy(bloom);
+    printf("destory over\n");
     //BLOOM *b = bloom_init(BLOOM_SIZE, 10, hash_list);
     //shutdown(sock, SHUT_RDWR);
     return 0;

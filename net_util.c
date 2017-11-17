@@ -49,8 +49,8 @@ void send_req(sock_d s, const char* url, CONN_STAT status)
 {
 	int url_len = (int)strlen(url);
 	int req_len = (14 + url_len + ua_len + conn_len + 1);
-	if(status != NULL) req_len += status->host_len + status->refer_len;
-	//GET /* HTTP/1.1
+	if(status != NULL) req_len += status->host_len;
+	//GET / HTTP/1.1
 	//Host: 
 	//Connection: 
 	//User-Agent:
@@ -154,9 +154,9 @@ unsigned char * recv_page(const unsigned long long  len, sock_d sock)
         strncat(page,buf,len);
     */
 	char_free(buf);
-    for(unsigned long long  i = 0;i < len;i++)
-       printf("%c",page[i]);
-    printf("\n");
+    //for(unsigned long long  i = 0;i < len;i++)
+    //   printf("%c",page[i]);
+    //printf("\n");
 	return page;
 }
 void char_free(char * ptr)
