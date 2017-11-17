@@ -24,7 +24,7 @@ static void cleanup(pthread_mutex_t* lock) {
 
 static void * worker(thread_pool_t pool) {
     struct task *t;
-    while(1) {
+    if(1) {
         pthread_mutex_lock(&pool->lock);
         pthread_cleanup_push((void(*)(void*))cleanup, &pool->lock);
         while(queue_isempty(pool->tasks)) {
