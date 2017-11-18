@@ -1,7 +1,6 @@
 #ifndef linked_queue_h
 #define linked_queue_h
 
-#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct linked_node{

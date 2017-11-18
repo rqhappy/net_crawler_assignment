@@ -49,7 +49,7 @@ void send_req(sock_d s, const char* url, CONN_STAT status)
 {
 	int url_len = (int)strlen(url);
 	int req_len = (14 + url_len + ua_len + conn_len + 1);
-	if(status != NULL) req_len += status->host_len;
+	req_len += status->host_len;
 	//GET / HTTP/1.1
 	//Host: 
 	//Connection: 

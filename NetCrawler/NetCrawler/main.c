@@ -1,19 +1,37 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include "net_util.h"
-#include "fsm.h"
-#include "bloom.h"
-#include "hash.h"
-
-#include <stdio.h>
+//#include "fsm.h"
+//#include "bloom.h"
+//#include "hash.h"
+#include "thread_pool.h"
+#include "thread_work.h"
+#include "linked_queue.h"
 
 int main(int argc, const char * argv[]) {
+    
+    int thread = 4;
+    thread_pool_t pool =  thread_pool_create(thread);
+    l_queue q= init_queue();
+    sock_d* socks =  sock_init("8080", "127.0.0.1");
+    var_init();
+    struct arguments *arg = (struct arguments*)malloc(sizeof(struct arguments));
+    arg->number = thread;
+    arg->socks = socks;
+    arg->q = q;
+    
+    for (int i = 0; i < thread; i++) {
+        thread_pool_add_task(pool, (void*)t_task, (void*)arg);
+    }
+    puts("press enter to terminate ...");
+    getchar();
+    /*
     // insert code here...
-    /*if(argc < 4)
+    if(argc < 4)
      {
      printf("Usage: crawler (ip_address) (port) (url.txt)\n");
      return 0;
-     }:*/
+     }:
     //char ip[50];
     //hostname_to_ip(argv[2],ip);
     sock_d sock = connection("8080","127.0.0.1");
@@ -52,5 +70,6 @@ int main(int argc, const char * argv[]) {
     printf("destory over\n");
     //BLOOM *b = bloom_init(BLOOM_SIZE, 10, hash_list);
     //shutdown(sock, SHUT_RDWR);
+    */
     return 0;
 }

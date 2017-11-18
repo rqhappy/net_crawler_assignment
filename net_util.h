@@ -1,16 +1,6 @@
 #ifndef _NET_UTIL_H_
 #define _NET_UTIL_H_
 
-typedef int sock_d;
-typedef struct conn_state{
-		char* host;
-		unsigned long host_len;
-		char* refer;
-		unsigned long refer_len;
-
-} *CONN_STAT;
-
-
 #include <netdb.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -19,6 +9,15 @@ typedef struct conn_state{
 #include <string.h>
 #include <errno.h>
 #include <arpa/inet.h>
+
+typedef int sock_d;
+typedef struct conn_state{
+    char* host;
+    unsigned long host_len;
+    char* refer;
+    unsigned long refer_len;
+    
+} *CONN_STAT;
 
 sock_d connection(const char*, const char*);
 void send_req(sock_d, const char*, CONN_STAT);

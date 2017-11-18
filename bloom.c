@@ -1,5 +1,5 @@
-#include"bloom.h" 
-#include"hash.h"
+#include "bloom.h" 
+#include "hash.h"
 
 BLOOM * bloom_init(size_t size, int n, ...)
 {
@@ -8,7 +8,7 @@ BLOOM * bloom_init(size_t size, int n, ...)
     int i;
     
     bloom=malloc(sizeof(BLOOM));
-    bloom->a=calloc((size+7)/8, sizeof(char));
+    bloom->a=calloc((size+7)/8, sizeof(unsigned char));
     bloom->funcs=(hashfunc_t*)malloc(n*sizeof(hashfunc_t));
 
     va_start(l, n);
