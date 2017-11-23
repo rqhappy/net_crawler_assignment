@@ -16,6 +16,7 @@ typedef struct linked_queue{
 
 l_node* new_node(char*, unsigned int);
 l_queue init_queue();
+void free_node(l_node*);
 void enqueue(l_queue, char*, unsigned int);
 l_node* dequeue(l_queue);
 int is_empty(l_queue);

@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <pthread.h>
-#define bloom_size 100000
+#define bloom_size 131072
 typedef unsigned int (*hashfunc_t)(const char *);
 typedef struct {
     size_t asize;

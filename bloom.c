@@ -49,6 +49,7 @@ int bloom_check(BLOOM *bloom, const char *s)
     for(i = 0; i < bloom->n; i++) {
         if(!(bloom_get(bloom->a, bloom->funcs[i](s)%bloom->asize))) 
         {
+            //not dup
             r = 0;
             break;
         }

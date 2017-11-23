@@ -4,7 +4,7 @@
 int** init_fsm()
 {
     int states = 255;
-    printf("start init.");
+    //printf("start init.");
     int i;
     int ** fsm = (int**)malloc(sizeof(int*)*11);
     for(i = 0;i <= 10;i++)
@@ -61,23 +61,21 @@ int** init_fsm()
 
     for(i=0;i <= states;i++)
         fsm[9][i] = 0;
-    printf("init over.");
+    //printf("init over.");
     return fsm;
 }
 
-char** search_url(unsigned char* page,int** fsm,int len)
+char** search_url(unsigned char* page,int** fsm,int len, int* urls_lenth)
 {
     int now = 0;
     int l = 0;
     int num = 0;
     int ptr = 0;
-    printf("start search.\n\n\n\n");
-    printf("%d\n",len);
-    int url_size = 300;
-    int url_arr_size = 1000;
-    char** urls = (char**)malloc(sizeof(char*)*url_arr_size);
-    int* urls_lenth = (int*)malloc(sizeof(int)*url_arr_size);
-    char* buf = (char*)malloc(sizeof(char)*url_size);
+    char** urls = (char**)malloc(sizeof(char*)*URL_ARR_SIZE);
+    for (int i = 0; i < URL_ARR_SIZE; i++) {
+        urls[i] = NULL;
+    }
+    char* buf = (char*)malloc(sizeof(char)*URL_SIZE);
     while(ptr < len)
     {
         if(now == 8)
@@ -85,43 +83,32 @@ char** search_url(unsigned char* page,int** fsm,int len)
             l = 0;
             while(ptr < len && page[ptr] !='"' && page[ptr] != '>')
             {
-                buf[l] = page[ptr];
-                l++;
+                if (page[ptr] != '\n') {
+                    buf[l] = page[ptr];
+                    l++;
+                }
                 ptr++;
             }
         }
         now=fsm[now][page[ptr]];
-        //printf("%c",page[ptr]);
-        //printf("%d\n",now);
         if(now == 9)
         {
-            if(num > url_arr_size-1)
+            if(num > URL_ARR_SIZE-1)
             {
                 printf("too many url to store, num:%d\n", num);
                 break;
             }
-            urls[num] = (char*)malloc(sizeof(char)*url_size);
-            strncpy(urls[num], buf, l+1);
-            urls_lenth[num] = l+1;
+            urls[num] = (char*)malloc(sizeof(char)*URL_SIZE);
+            strncpy(urls[num], buf, l);
+            strncpy(urls[num]+l, "\0", 1);
+            urls_lenth[num] = l;
             num++;
-            //for(int i = 0;i < l;i++)
-            //{
-            //    urls[num][i] = buf[i];
-            //}
             
         }
         ptr++;
-        //printf("%d",ptr);
     }
-    printf("search over\n");
-    printf("%d\n",num);
-//    for(int i = 0;i < num;i++)
-//        printf("%s\n",url[i]);
-//    for(int i = 0;i < num;i++)
-//        char_free(url[i]);
-//    free(url);
-//    if(url != NULL)
-//        url = NULL;
+    free(page);
+    free(buf);
     return urls;
 }
 
