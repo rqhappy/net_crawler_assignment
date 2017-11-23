@@ -145,7 +145,7 @@ unsigned int AP_hash(char *str)
 
 unsigned int CRC_hash(char *str)  
 {  
-    unsigned int        nleft   = strlen(str);  
+    unsigned int        nleft   = (unsigned int)strlen(str);
     unsigned long long  sum     = 0;  
     unsigned short int *w       = (unsigned short int *)str;  
     unsigned short int  answer  = 0;  

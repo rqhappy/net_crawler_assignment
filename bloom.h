@@ -1,13 +1,13 @@
 #ifndef _BLOOM_H  
 #define _BLOOM_H 
 
-#include<stdio.h>
-#include<string.h>
-#include<limits.h>
-#include<stdarg.h>
-#include<stdlib.h>
-#include<pthread.h>
-#define bloom_size 100000
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <pthread.h>
+#define bloom_size 131072
 typedef unsigned int (*hashfunc_t)(const char *);
 typedef struct {
     size_t asize;

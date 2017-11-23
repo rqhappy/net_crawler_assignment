@@ -1,6 +1,4 @@
 #include "thread_pool.h"
-
-#include "thread_pool.h"
 #include "queue.h"
 #include <stdlib.h>
 #include <pthread.h>

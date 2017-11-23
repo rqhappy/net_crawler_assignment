@@ -54,11 +54,22 @@ l_node* dequeue(l_queue q)
     }
     return NULL;
 }
+
+void free_node(l_node* l_n)
+{
+    if (l_n->url != NULL) {
+        free(l_n->url);
+        l_n->url = NULL;
+    }
+    free(l_n);
+    l_n = NULL;
+}
+
 //call this function when queue is empty
 void free_queue(l_queue q)
 {
-    free(q->l_head);
-    free(q->l_tail);
+    free_node(q->l_head);
+    free_node(q->l_tail);
     free(q);
 }
 
