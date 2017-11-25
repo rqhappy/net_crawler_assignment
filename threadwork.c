@@ -148,7 +148,6 @@ void t_task(void* args)
                 send_routine(n, arg, i, &sets, ready_for_send, hosts);
             }
             int result;
-            //printf("thread:%ld\n", pthread_self());
             for (int k = 0; k < SOCK_PRE_T*T_COUNT; k++) {
                 if (arg->socks[k] > max_sock) {
                     max_sock = arg->socks[k];
@@ -161,7 +160,6 @@ void t_task(void* args)
             }else{
                 result = select(max_sock+1, &sets, NULL, NULL, &timeout);
             }
-            printf("result: %d\n", result);
             for (int j = 0; j < SOCK_PRE_T; j++) {
                 //printf("is_set:%d\n", FD_ISSET(arg->socks[arg->number*SOCK_PRE_T+i], &sets));
                 
@@ -207,7 +205,6 @@ void t_task(void* args)
                     if (err == 1) {
                         printf("reconnect to server!!\n");
                         shutdown(c_sock, SHUT_WR);
-                        //broken pipe condition, try twice!
                         sock_d s_temp = connection(arg->port, arg->host);
                         arg->socks[arg->number*SOCK_PRE_T+j] = s_temp;
                         

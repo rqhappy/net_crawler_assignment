@@ -75,15 +75,25 @@ unsigned char * recv_page(const unsigned long long  len, sock_d sock)
 	
 	unsigned long long count = 0;
 	unsigned long long  pos = 0;
+    
+    ssize_t temp  = 0;
 	while(l > 0)
 	{
 		count = l > (unsigned long long)buf_size ? buf_size : l;
-		recv(sock, buf, sizeof(unsigned char)*count, 0);
+		temp = recv(sock, buf, sizeof(unsigned char)*count, 0);
+        //printf("temp:%lu, count:%llu\n", temp, count);
 		strncpy((char*)page+pos, buf, count);
 		pos += count;
 		l -= count;
 	}
+    /*
     printf("*************count:%llu, pos:%llu, len:%llu l:%llu\n", count, pos, len, l);
+    printf("%c%c%c%c%c%c\n", page[0], page[1], page[2], page[3], page[4], page[5]);
+    printf("%c%c%c%c%c%c\n\n", page[len - 6], page[len - 5], page[len - 4], page[len - 3], page[len - 2], page[len - 1]);
+    printf("%lu\n", strlen(page));
+    printf("%s\n", page);
+     */
+    
 	char_free(buf);
 	return page;
 }
@@ -109,8 +119,8 @@ int analysis_h(sock_d sock, int *err)
             strsep(&dup, " ");
             if (dup == NULL) {
                 printf("what happened????\n");
-                continue;
-            }
+                //continue;
+            }else
             if (strcmp(dup, "200 OK") == 0) {
                 flag = 1;
             }
