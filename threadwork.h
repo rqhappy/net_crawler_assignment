@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #define T_COUNT 1
-#define SOCK_PRE_T 1
+#define SOCK_PRE_T 10
 
 
 typedef struct arguments{
