@@ -41,7 +41,7 @@ unsigned char bloom_get(unsigned char *a,size_t n)
 	return a[n/8] & (1<<(n%8));
 }
 
-int bloom_check(BLOOM *bloom, const char *s)
+int bloom_check(BLOOM *bloom, const unsigned char *s)
 {
     size_t i;
     int r = 1;

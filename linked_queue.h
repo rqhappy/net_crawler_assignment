@@ -5,19 +5,20 @@
 
 typedef struct linked_node{
     struct linked_node* next;
-    char* url;
+    unsigned char* url;
     unsigned int url_len;
 } l_node;
 
 typedef struct linked_queue{
     struct linked_node *l_head, *l_tail;
+    unsigned long q_len;
     
 } *l_queue;
 
-l_node* new_node(char*, unsigned int);
+l_node* new_node(unsigned char*, unsigned int);
 l_queue init_queue();
 void free_node(l_node*);
-void enqueue(l_queue, char*, unsigned int);
+void enqueue(l_queue, unsigned char*, unsigned int);
 l_node* dequeue(l_queue);
 int is_empty(l_queue);
 void free_queue(l_queue);

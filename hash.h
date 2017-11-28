@@ -13,34 +13,34 @@ static char* hash_list[10]= {
     "AP_hash",
     "CRC_hash"};
 /* A Simple Hash Function */  
-unsigned int simple_hash(char *str);  
+unsigned int simple_hash(unsigned char *str);
 
 /* RS Hash Function */  
-unsigned int RS_hash(char *str);  
+unsigned int RS_hash(unsigned char *str);
 
 /* JS Hash Function */  
-unsigned int JS_hash(char *str);  
+unsigned int JS_hash(unsigned char *str);
 
 /* P. J. Weinberger Hash Function */  
-unsigned int PJW_hash(char *str);  
+unsigned int PJW_hash(unsigned char *str);
 
 /* ELF Hash Function */  
-unsigned int ELF_hash(char *str);  
+unsigned int ELF_hash(unsigned char *str);
 
 /* BKDR Hash Function */  
-unsigned int BKDR_hash(char *str);  
+unsigned int BKDR_hash(unsigned char *str);
 
 /* SDBM Hash Function */  
-unsigned int SDBM_hash(char *str);  
+unsigned int SDBM_hash(unsigned char *str);
 
 /* DJB Hash Function */  
-unsigned int DJB_hash(char *str);  
+unsigned int DJB_hash(unsigned char *str);
 
 /* AP Hash Function */  
-unsigned int AP_hash(char *str);  
+unsigned int AP_hash(unsigned char *str);
 
 /* CRC Hash Function */  
-unsigned int CRC_hash(char *str);  
+unsigned int CRC_hash(unsigned char *str);  
 
 
 #endif

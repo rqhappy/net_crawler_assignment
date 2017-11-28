@@ -3,9 +3,12 @@
 pthread_mutex_t q_lock;
 pthread_mutex_t o_lock;
 pthread_mutex_t c_lock;
+pthread_mutex_t main_mutex;
 pthread_cond_t q_ready;
+pthread_cond_t main_ready;
 CONN_STAT c_state;
 int max_sock;
+unsigned char* wait_bit;
 
 sock_d* sock_init(const char* port, const char* address)
 {
@@ -40,59 +43,99 @@ void var_init()
     pthread_mutex_init(&q_lock, NULL);
     pthread_mutex_init(&c_lock, NULL);
     pthread_mutex_init(&o_lock, NULL);
+    pthread_mutex_init(&main_mutex, NULL);
     pthread_cond_init(&q_ready, NULL);
+    pthread_cond_init(&main_ready, NULL);
+    
+    
+    wait_bit = (unsigned char *)malloc(sizeof(unsigned char)*(T_COUNT/8 + 1));
+    memset(wait_bit, 0, sizeof(unsigned char)*(T_COUNT/8 + 1));
+}
+
+void send_routine(l_node* n, ARGS arg, int i, fd_set *sets, int* readyfs, unsigned char** ho)
+{
+    //url format:(1)http://news.sohu.com/ or /255.255.255.255/ (2) /78/00/news207330078.shtml
+    
+    CONN_STAT cs = (CONN_STAT)malloc(sizeof(CONN_STAT));
+    
+    char *http_token, *http_str, *http_free;;
+    http_str = http_free = strdup((char*)n->url);
+    http_token = strsep(&http_str, "/");
+    if (strcmp(http_token, "") == 0) {
+        //condition (2)
+        cs->host = host_gen(ho[i]);
+        cs->host_len = strlen((char*)ho[i]);
+        
+        send_req(arg->socks[SOCK_PRE_T * arg->number + i], (char*)n->url, cs);
+        FD_SET(arg->socks[arg->number*SOCK_PRE_T+i], sets);
+        readyfs[i] = 1;
+    }else{
+        //condition (1)
+        char *t_host, *string, *tofree;
+        tofree = string = strdup(http_str+1);
+        t_host = strsep(&string, "/");
+        
+        if (strcmp(t_host, arg->host) != 0) {
+            char str[32];
+            struct hostent *so_h  = gethostbyname(t_host);
+            if (so_h != NULL) {
+                sprintf(str, "%s", inet_ntop(so_h->h_addrtype, so_h->h_addr_list[0], str, sizeof(str)));
+                cs->host = host_gen((unsigned char*)str);
+                cs->host_len = strlen(cs->host);
+                
+                so_h = NULL;
+            }else{
+                printf("name server can not parse host:%s url:%s\n", t_host, n->url);
+                free_node(n);
+                free(cs);
+                free(tofree);
+                return;
+            }
+            
+        }else{
+            //default host condition
+            cs->host = host_gen((unsigned char*) arg->host);
+            cs->host_len = strlen(cs->host);
+        }
+        
+        printf("thread:%ld sock: %d cs->host:%s str:%s str_len:%lu n->url:%s\n", pthread_self(),arg->socks[SOCK_PRE_T * arg->number +i],cs->host, n->url+strlen(t_host)+1, strlen(n->url+strlen(t_host)+1), n->url);
+        int state = send_req(arg->socks[SOCK_PRE_T * arg->number + i], http_str+strlen(t_host)+1, cs);
+        if (state == 32) {
+            printf("send msg with a closed pipe\n");
+        }
+        FD_SET(arg->socks[arg->number*SOCK_PRE_T+i], sets);
+        readyfs[i] = 1;
+        if (ho[i] != NULL) {
+            free(ho[i]);
+        }
+        ho[i] = (unsigned char*)strdup((char*)n->url);
+        
+        free(tofree);
+        
+    }
+    free_node(n);
+    free(http_free);
     
 }
 
-void send_routine(l_node* n, ARGS arg, int i, fd_set *sets, int* readyfs, char** ho)
+
+int check_bit()
 {
-    char *t_host, *string, *tofree;
-    tofree = string = strdup(n->url+1);
-    t_host = strsep(&string, "/");
-    
-    CONN_STAT cs = (CONN_STAT)malloc(sizeof(CONN_STAT));
-    if (strcmp(t_host, arg->host) != 1) {
-        char str[32];
-        struct hostent *so_h  = gethostbyname(t_host);
-        if (so_h != NULL) {
-            sprintf(str, "%s", inet_ntop(so_h->h_addrtype, so_h->h_addr_list[0], str, sizeof(str)));
-            printf("htoip:-----%s-----",str);
-            cs->host = host_gen(str);
-            cs->host_len = strlen(cs->host);
-            
-            so_h = NULL;
-        }else{
-            printf("name server can not parse host:%s\n", t_host);
-            free_node(n);
-            free(cs);
-            free(tofree);
-            return;
+    //check n-1 slot
+    for (int i = 0; i < T_COUNT/8; i++) {
+        if (wait_bit[i] != 0xff) {
+            return 0;
         }
-        
-    }else{
-        //default host condition
-        cs->host = host_gen(arg->host);
-        cs->host_len = strlen(cs->host);
     }
-    
-    printf("thread:%ld sock: %d cs->host:%s str:%s str_len:%lu n->url:%s\n", pthread_self(),
-           arg->socks[SOCK_PRE_T * arg->number +i],cs->host, n->url+strlen(t_host)+1, strlen(n->url+strlen(t_host)+1), n->url);
-    int state = send_req(arg->socks[SOCK_PRE_T * arg->number + i], n->url+strlen(t_host)+1, cs);
-    if (state == 32) {
-        printf("send msg with a closed pipe\n");
+    //check n slot
+    if(0xff>>(8 - T_COUNT%8) != wait_bit[T_COUNT/8])
+    {
+        return 0;
     }
-    FD_SET(arg->socks[arg->number*SOCK_PRE_T+i], sets);
-    readyfs[i] = 1;
-    if (ho[i] != NULL) {
-        free(ho[i]);
-    }
-    ho[i] = strdup(n->url);
-    
-    free_node(n);
-    free(tofree);
-    
+    return 1;
     
 }
+
 void t_task(void* args)
 {
     struct arguments *arg = (struct arguments*)args;
@@ -103,19 +146,22 @@ void t_task(void* args)
         ready_for_send[i] = 0;
     }
     //init hosts
-    char** hosts = (char**)malloc(sizeof(char*)*SOCK_PRE_T);
+    unsigned char** hosts = (unsigned char**)malloc(sizeof(unsigned char*)*SOCK_PRE_T);
     for (int i =0; i < SOCK_PRE_T; i++) {
         hosts[i] = NULL;
     }
+    
     //init fd_set
     fd_set sets;
     FD_ZERO(&sets);
+    
     //init fsm
     int ** fsm = init_fsm();
+    
     //init output file
     char f_name[16];
     sprintf(f_name, "%d.txt",arg->number);
-    FILE *f = fopen(f_name, "w");
+    FILE* ft = fopen(f_name, "w");
     
     //init struct timeval
     struct timeval timeout;
@@ -141,9 +187,24 @@ void t_task(void* args)
                 pthread_mutex_unlock(&q_lock);
             }else{
                 while (is_empty(arg->q)) {
-                    pthread_cond_wait(&q_ready, &q_lock);
+                    int slot_pos = arg->number/T_COUNT;
+                    int bit_pos = arg->number%T_COUNT;
+                    wait_bit[slot_pos] = wait_bit[slot_pos]|(0x01<<bit_pos);
+                    if(check_bit()){
+                        ternary_fclose();
+                        pthread_cond_signal(&q_ready);
+                        pthread_cond_broadcast(&main_ready);
+                        pthread_mutex_unlock(&q_lock);
+                        fclose(ft);
+                        return;
+                    }else{
+                        pthread_cond_wait(&q_ready, &q_lock);
+                        wait_bit[slot_pos] = wait_bit[slot_pos]&(0xff^(0x01<<bit_pos));
+                    }
                 }
                 l_node *n = dequeue(arg->q);
+                printf("**q_len:%lu\n", arg->q->q_len);
+                printf("n->url:%s\n", n->url);
                 pthread_mutex_unlock(&q_lock);
                 send_routine(n, arg, i, &sets, ready_for_send, hosts);
             }
@@ -155,7 +216,7 @@ void t_task(void* args)
             }
             
             if (sum == SOCK_PRE_T) {
-                printf("jam!!\n");
+                //printf("jam!!\n");
                 result = select(max_sock+1, &sets, NULL, NULL, NULL);
             }else{
                 result = select(max_sock+1, &sets, NULL, NULL, &timeout);
@@ -178,32 +239,32 @@ void t_task(void* args)
                     }else{
                         unsigned char * page = recv_page(len, c_sock);
                         int* urls_lenth = (int*)malloc(sizeof(int)*URL_ARR_SIZE);
-                        char ** url = search_url(page, fsm, len, urls_lenth);
+                        unsigned char ** url = search_url(page, fsm, len, urls_lenth);
                         //to be free url[][]
                         
                         for (int k = 0; k < URL_ARR_SIZE; k++) {
                             if (url[k] != NULL) {
-                                fwrite(url[k], sizeof(char), urls_lenth[k], f);
-                                fwrite(" ", sizeof(char), 1, f);
-                                fwrite(hosts[j], sizeof(char),strlen(hosts[j]), f);
-                                fwrite("\n", sizeof(char), 1, f);
+
+                                //printf("url[%d]:%s\n", k, url[k]);
+                                fprintf(ft, "%lu %lu\n", insert(arg->ternary_t, url[k], urls_lenth[k]), insert(arg->ternary_t, hosts[j], (int)strlen((char*)hosts[j])));
+                                //fprintf(ft, "%lu %lu\n", str_to_num(arg->ac_t, url[k], urls_lenth[k]), str_to_num(arg->ac_t, hosts[j], (int)strlen((char*)hosts[j])));
                                 
-                                //printf("write %lu bytes to file:%s\n", ws, f_name);
-                                fwrite("\n", sizeof(char), 1, f);
                                 pthread_mutex_lock(&q_lock);
                                 if(bloom_check(arg->b, url[k]) == 0)
                                 {
                                     enqueue(arg->q, url[k], urls_lenth[k]);
                                 }
-                                //printf("enqueue: %s\n", url[k]);
                                 pthread_mutex_unlock(&q_lock);
                                 pthread_cond_signal(&q_ready);
                             }
                             
                         }
+                        //free url and url_length
+                        //free_urls(url);
+                        free(urls_lenth);
                     }
                     if (err == 1) {
-                        printf("reconnect to server!!\n");
+                        //printf("reconnect to server!!\n");
                         shutdown(c_sock, SHUT_WR);
                         sock_d s_temp = connection(arg->port, arg->host);
                         arg->socks[arg->number*SOCK_PRE_T+j] = s_temp;
@@ -224,5 +285,34 @@ void t_task(void* args)
             
         }
         
+    }
+}
+
+
+void combine_files(const char* output)
+{
+    FILE *out_f = fopen(output, "w");
+    size_t buf_size = 512;
+    unsigned char buf[buf_size];
+    size_t count = 0;
+    //combine trie_tree file
+    FILE *tree_f = fopen(T_F_PATH, "r");
+    while ((count = fread(buf, sizeof(unsigned char), buf_size, tree_f)) > 0) {
+        fwrite(buf, sizeof(unsigned char), count, out_f);
+    }
+    fclose(tree_f);
+    remove(T_F_PATH);
+    fwrite("\n", sizeof(unsigned char), 1, out_f);
+    //combine thread file
+    for (int i = 0; i < T_COUNT; i++) {
+        char t_path[16];
+        sprintf(t_path, "%d.txt", i);
+        FILE *ff = fopen(t_path, "r");
+        while ((count = fread(buf, sizeof(unsigned char), buf_size, ff)) > 0) {
+            fwrite(buf, sizeof(unsigned char), count, out_f);
+        }
+        
+        fclose(ff);
+        remove(t_path);
     }
 }

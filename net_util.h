@@ -22,12 +22,12 @@ typedef struct conn_state{
 
 sock_d connection(const char*, const char*);
 int send_req(sock_d, const char*, CONN_STAT);
-int analysis_head(sock_d);
 int analysis_h(sock_d, int*);
 unsigned char *recv_page(const unsigned long long, sock_d);
-void char_free(char *);
+void char_free(unsigned char *);
 void free_conn_state(CONN_STAT);
-char* host_gen(char*);
+char* host_gen(unsigned char*);
+char* url_gen(char*);
 
 static char* user_agent = "User-Agent: Spider\n";
 static int ua_len = 19;

@@ -5,22 +5,18 @@
 #include "thread_pool.h"
 #include "threadwork.h"
 #include "linked_queue.h"
+#include "ternary_tree.h"
+//#include "trie_tree.h"
 
 int main(int argc, const char * argv[]) {
     
     char* addr = "127.0.0.1";
     char* port = "8080";
     
-    signal(SIGPIPE,SIG_IGN);
     thread_pool_t pool =  thread_pool_create(T_COUNT);
     l_queue q= init_queue();
-    char *index = (char*)malloc(sizeof(char)*18);
-    strcat(index, "/");
-    strcat(index, addr);
-    strcat(index, "/");
-    //strncpy(index, "/127.0.0.1/", 11);
-    index[strlen(addr)+2] = '\0';
-    enqueue(q, index, (int)strlen(index));
+    char* index = url_gen(addr);
+    enqueue(q, (unsigned char*)index, (int)strlen(index));
     sock_d* socks =  sock_init(port, addr);
     var_init();
     //init bloom
@@ -28,6 +24,10 @@ int main(int argc, const char * argv[]) {
                               PJW_hash,ELF_hash,BKDR_hash,SDBM_hash,DJB_hash,AP_hash,CRC_hash);
     unsigned long long *u_count =(unsigned long long*)malloc(sizeof(unsigned long long));
     u_count[0] = 1;
+    
+    //AC_TREE ac_t = tree_init();
+    ternary_tree ternary_t = init_ternary_tree();
+    
     for (int i = 0; i < T_COUNT; i++) {
         struct arguments *arg = (struct arguments*)malloc(sizeof(struct arguments));
         arg->socks = socks;
@@ -38,13 +38,19 @@ int main(int argc, const char * argv[]) {
         arg->port = port;
         arg->port_len = (int)strlen(port);
         arg->host = addr;
+        //arg->ac_t = ac_t;
+        arg->ternary_t = ternary_t;
         arg->host_len = (int)strlen(addr);
         thread_pool_add_task(pool, (void*)t_task, (void*)arg);
     }
-    puts("press enter to terminate ...");
-    getchar();
-     
-     
+    
+    
+    for (int i = 0; i < T_COUNT; i++) {
+        pthread_cond_wait(&main_ready, &main_mutex);
+    }
+    
+    char* out = "url.txt";
+    combine_files(out);
      
      
      

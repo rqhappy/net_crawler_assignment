@@ -1,7 +1,7 @@
 #include"hash.h"
 #include<string.h>
 
-unsigned int simple_hash(char *str)  
+unsigned int simple_hash(unsigned char *str)
 {  
     register unsigned int hash;  
     register unsigned char *p;  
@@ -13,7 +13,7 @@ unsigned int simple_hash(char *str)
 }  
 
 /* RS Hash Function */  
-unsigned int RS_hash(char *str)  
+unsigned int RS_hash(unsigned char *str)
 {  
          unsigned int b = 378551;  
          unsigned int a = 63689;  
@@ -29,7 +29,7 @@ unsigned int RS_hash(char *str)
 }  
 
 /* JS Hash Function */  
-unsigned int JS_hash(char *str)  
+unsigned int JS_hash(unsigned char *str)
 {  
          unsigned int hash = 1315423911;  
 
@@ -42,7 +42,7 @@ unsigned int JS_hash(char *str)
 }  
 
 /* P. J. Weinberger Hash Function */  
-unsigned int PJW_hash(char *str)  
+unsigned int PJW_hash(unsigned char *str)
 {  
          unsigned int BitsInUnignedInt = (unsigned int)(sizeof(unsigned int) * 8);  
          unsigned int ThreeQuarters     = (unsigned int)((BitsInUnignedInt   * 3) / 4);  
@@ -65,7 +65,7 @@ unsigned int PJW_hash(char *str)
 }  
 
 /* ELF Hash Function */  
-unsigned int ELF_hash(char *str)  
+unsigned int ELF_hash(unsigned char *str)
 {  
          unsigned int hash = 0;  
          unsigned int x     = 0;  
@@ -84,7 +84,7 @@ unsigned int ELF_hash(char *str)
 }  
 
 /* BKDR Hash Function */  
-unsigned int BKDR_hash(char *str)  
+unsigned int BKDR_hash(unsigned char *str)
 {  
          unsigned int seed = 131; // 31 131 1313 13131 131313 etc..  
          unsigned int hash = 0;  
@@ -98,7 +98,7 @@ unsigned int BKDR_hash(char *str)
 }  
 
 /* SDBM Hash Function */  
-unsigned int SDBM_hash(char *str)  
+unsigned int SDBM_hash(unsigned char *str)
 {  
          unsigned int hash = 0;  
 
@@ -111,7 +111,7 @@ unsigned int SDBM_hash(char *str)
 }  
 
 /* DJB Hash Function */  
-unsigned int DJB_hash(char *str)  
+unsigned int DJB_hash(unsigned char *str)
 {  
          unsigned int hash = 5381;  
 
@@ -124,7 +124,7 @@ unsigned int DJB_hash(char *str)
 }  
 
 /* AP Hash Function */  
-unsigned int AP_hash(char *str)  
+unsigned int AP_hash(unsigned char *str)
 {  
          unsigned int hash = 0;  
          int i;  
@@ -143,9 +143,9 @@ unsigned int AP_hash(char *str)
          return (hash & 0x7FFFFFFF);  
 }  
 
-unsigned int CRC_hash(char *str)  
+unsigned int CRC_hash(unsigned char *str)
 {  
-    unsigned int        nleft   = (unsigned int)strlen(str);
+    unsigned int        nleft   = (unsigned int)strlen((char*)str);
     unsigned long long  sum     = 0;  
     unsigned short int *w       = (unsigned short int *)str;  
     unsigned short int  answer  = 0;  
