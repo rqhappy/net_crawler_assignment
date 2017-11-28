@@ -3,17 +3,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <netdb.h>
-#include <sys/socket.h>
+#include <string.h>
+
 int main()
 {
-	char* g = "www.google.cn";
-	char* so = "news.sohu.com";
-	char str[32];
-	struct hostent *g_h = gethostbyname(g);
-	struct hostent *so_h = gethostbyname(so);
+	char* so = "/news.sohu.com/nihao/";
+	char* so2 = "http://news.sohu.com/nihao/";
+	char *str, *tofree, *str2, *tofree2;
+	str = tofree = strdup(so);
+	str2 = tofree2 = strdup(so2);
 
-	printf("ipaddr:%s\n", inet_ntop(g_h->h_addrtype, g_h->h_addr_list[0], str, sizeof(str)));
-	
-	
+	char* token = strsep(&str, "/");
+	char* token2 = strsep(&str2, "/");
+	printf("token:%s str:%s str2:%s token2:%s\n", token, str, token2, str2);
+	printf("token == ""?:%d\n", strcmp(token,""));
+	return 0;
 
 }

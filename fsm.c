@@ -44,15 +44,16 @@ int** init_fsm()
 
     for(i=0;i <= states;i++)
         fsm[7][i] = 0;
-    fsm[7]['"']=10;
+    fsm[7]['"']=8;
     fsm[7][' ']=7;
 
-    for(i=0;i <= states;i++)
+    /*for(i=0;i <= states;i++)
         fsm[10][i] = 10;
     fsm[10]['/'] = 8;
     fsm[10]['"'] = 0;
     fsm[10]['>'] = 0;
     fsm[10]['#'] = 0;
+     */
 
     for(i=0;i <= states;i++)
         fsm[8][i] = 8;
@@ -65,13 +66,13 @@ int** init_fsm()
     return fsm;
 }
 
-char** search_url(unsigned char* page,int** fsm,int len, int* urls_lenth)
+unsigned char** search_url(unsigned char* page,int** fsm,int len, int* urls_lenth)
 {
     int now = 0;
     int l = 0;
     int num = 0;
     int ptr = 0;
-    char** urls = (char**)malloc(sizeof(char*)*URL_ARR_SIZE);
+    unsigned char** urls = (unsigned char**)malloc(sizeof(unsigned char*)*URL_ARR_SIZE);
     for (int i = 0; i < URL_ARR_SIZE; i++) {
         urls[i] = NULL;
     }
@@ -86,6 +87,10 @@ char** search_url(unsigned char* page,int** fsm,int len, int* urls_lenth)
                 if (page[ptr] != '\n') {
                     buf[l] = page[ptr];
                     l++;
+                    if (l > URL_SIZE) {
+                        printf("l bigger than URL_SIZE\n");
+                        return NULL;
+                    }
                 }
                 ptr++;
             }
@@ -98,14 +103,16 @@ char** search_url(unsigned char* page,int** fsm,int len, int* urls_lenth)
                 printf("too many url to store, num:%d\n", num);
                 break;
             }
-            urls[num] = (char*)malloc(sizeof(char)*URL_SIZE);
-            memcpy(urls[num], buf, l);
-            memcpy(urls[num]+l, "\0", 1);
-            
-            //strncpy(urls[num], buf, l);
-            //strncpy(urls[num]+l, "\0", 1);
-            urls_lenth[num] = l;
-            num++;
+            char temp[8];
+            strncpy(temp, (char*)buf, 4);
+            temp[4] = '\0';
+            if (l > 0 && (buf[0] == '/'||strcmp("http", temp) == 0)) {
+                urls[num] = (unsigned char*)malloc(sizeof(unsigned char)*URL_SIZE);
+                memcpy(urls[num], buf, l);
+                memcpy(urls[num]+l, "\0", 1);
+                urls_lenth[num] = l;
+                num++;
+            }
             
         }
         ptr++;
@@ -115,6 +122,15 @@ char** search_url(unsigned char* page,int** fsm,int len, int* urls_lenth)
     free(buf);
     buf = NULL;
     return urls;
+}
+
+void free_urls(unsigned char** urls)
+{
+    for (int i = 0; i < URL_ARR_SIZE; i++) {
+        free(urls[i]);
+    }
+    free(urls);
+    urls = NULL;
 }
 
 

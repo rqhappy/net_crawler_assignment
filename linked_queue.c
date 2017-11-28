@@ -1,6 +1,7 @@
 #include "linked_queue.h"
+#include <stdio.h>
 
-l_node* new_node(char* url, unsigned int len)
+l_node* new_node(unsigned char* url, unsigned int len)
 {
     l_node *r = (struct linked_node*)malloc(sizeof(struct linked_node));
     r->next = NULL;
@@ -18,6 +19,7 @@ l_queue init_queue()
     q->l_tail = (struct linked_node*)new_node(NULL, 0);
     q->l_tail->next = q->l_head;
     q->l_head->next = q->l_tail;
+    q->q_len = 0;
     return q;
 }
 
@@ -28,9 +30,10 @@ int is_empty(l_queue q){
     return 0;
 }
 
-void enqueue(l_queue q, char* url, unsigned int url_len)
+void enqueue(l_queue q, unsigned char* url, unsigned int url_len)
 {
     l_node *r = new_node(url, url_len);
+    
     if(is_empty(q)){
         q->l_head->next = r;
         q->l_tail->next = r;
@@ -38,6 +41,7 @@ void enqueue(l_queue q, char* url, unsigned int url_len)
         q->l_tail->next->next = r;
         q->l_tail->next = r;
     }
+    q->q_len++;
 }
 
 // free when l_node used in outside
@@ -50,6 +54,7 @@ l_node* dequeue(l_queue q)
             q->l_tail->next = q->l_head;
             q->l_head->next = q->l_tail;
         }
+        q->q_len--;
         return r;
     }
     return NULL;
