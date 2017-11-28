@@ -35,8 +35,6 @@ typedef struct arguments{
     //AC_TREE ac_t;
 } *ARGS;
 
-extern pthread_cond_t main_ready;
-extern pthread_mutex_t main_mutex;
 extern pthread_mutex_t q_lock;
 extern pthread_mutex_t o_lock;
 extern pthread_mutex_t c_lock;

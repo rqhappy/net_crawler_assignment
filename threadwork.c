@@ -3,9 +3,7 @@
 pthread_mutex_t q_lock;
 pthread_mutex_t o_lock;
 pthread_mutex_t c_lock;
-pthread_mutex_t main_mutex;
 pthread_cond_t q_ready;
-pthread_cond_t main_ready;
 CONN_STAT c_state;
 int max_sock;
 unsigned char* wait_bit;
@@ -43,9 +41,7 @@ void var_init()
     pthread_mutex_init(&q_lock, NULL);
     pthread_mutex_init(&c_lock, NULL);
     pthread_mutex_init(&o_lock, NULL);
-    pthread_mutex_init(&main_mutex, NULL);
     pthread_cond_init(&q_ready, NULL);
-    pthread_cond_init(&main_ready, NULL);
     
     
     wait_bit = (unsigned char *)malloc(sizeof(unsigned char)*(T_COUNT/8 + 1));
@@ -98,7 +94,7 @@ void send_routine(l_node* n, ARGS arg, int i, fd_set *sets, int* readyfs, unsign
             cs->host_len = strlen(cs->host);
         }
         
-        printf("thread:%ld sock: %d cs->host:%s str:%s str_len:%lu n->url:%s\n", pthread_self(),arg->socks[SOCK_PRE_T * arg->number +i],cs->host, n->url+strlen(t_host)+1, strlen(n->url+strlen(t_host)+1), n->url);
+        //printf("thread:%ld sock: %d cs->host:%s str:%s str_len:%lu n->url:%s\n", pthread_self(),arg->socks[SOCK_PRE_T * arg->number +i],cs->host, n->url+strlen(t_host)+1, strlen(n->url+strlen(t_host)+1), n->url);
         int state = send_req(arg->socks[SOCK_PRE_T * arg->number + i], http_str+strlen(t_host)+1, cs);
         if (state == 32) {
             printf("send msg with a closed pipe\n");
@@ -191,9 +187,9 @@ void t_task(void* args)
                     int bit_pos = arg->number%T_COUNT;
                     wait_bit[slot_pos] = wait_bit[slot_pos]|(0x01<<bit_pos);
                     if(check_bit()){
+                        //thread over
                         ternary_fclose();
                         pthread_cond_signal(&q_ready);
-                        pthread_cond_broadcast(&main_ready);
                         pthread_mutex_unlock(&q_lock);
                         fclose(ft);
                         return;
@@ -203,8 +199,8 @@ void t_task(void* args)
                     }
                 }
                 l_node *n = dequeue(arg->q);
-                printf("**q_len:%lu\n", arg->q->q_len);
-                printf("n->url:%s\n", n->url);
+                //printf("**q_len:%lu\n", arg->q->q_len);
+                //printf("n->url:%s\n", n->url);
                 pthread_mutex_unlock(&q_lock);
                 send_routine(n, arg, i, &sets, ready_for_send, hosts);
             }
@@ -260,7 +256,7 @@ void t_task(void* args)
                             
                         }
                         //free url and url_length
-                        //free_urls(url);
+                        free(url);
                         free(urls_lenth);
                     }
                     if (err == 1) {
@@ -301,7 +297,7 @@ void combine_files(const char* output)
         fwrite(buf, sizeof(unsigned char), count, out_f);
     }
     fclose(tree_f);
-    remove(T_F_PATH);
+    //remove(T_F_PATH);
     fwrite("\n", sizeof(unsigned char), 1, out_f);
     //combine thread file
     for (int i = 0; i < T_COUNT; i++) {
@@ -313,6 +309,6 @@ void combine_files(const char* output)
         }
         
         fclose(ff);
-        remove(t_path);
+        //remove(t_path);
     }
 }

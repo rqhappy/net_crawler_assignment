@@ -34,6 +34,7 @@ void free_ternary_tree(ternary_node *node)
     node = NULL;
 }
 long insert(ternary_tree root, unsigned char *str, unsigned long str_len){
+    pthread_mutex_lock(&t_tree_lock);
     ternary_node *h = root->center;
     ternary_node *pre = root;//始终指向h的前一个节点
     int location = CENTER;
@@ -76,5 +77,6 @@ long insert(ternary_tree root, unsigned char *str, unsigned long str_len){
         fprintf(t_f, " %lu\n", t_url_count);
         t_url_count++;
     }
+    pthread_mutex_unlock(&t_tree_lock);
     return pre->number;
 }

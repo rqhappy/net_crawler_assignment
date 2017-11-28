@@ -44,10 +44,7 @@ int main(int argc, const char * argv[]) {
         thread_pool_add_task(pool, (void*)t_task, (void*)arg);
     }
     
-    
-    for (int i = 0; i < T_COUNT; i++) {
-        pthread_cond_wait(&main_ready, &main_mutex);
-    }
+    thread_pool_destroy(pool);
     
     char* out = "url.txt";
     combine_files(out);

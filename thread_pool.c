@@ -68,9 +68,7 @@ void thread_pool_add_task(thread_pool_t pool, void* (*routine)(void *arg), void 
 
 void thread_pool_destroy(thread_pool_t pool) {
     unsigned int i;
-    for(i=0; i<pool->thread_count; i++) {
-        pthread_cancel(pool->threads[i]);
-    }
+    
     for(i=0; i<pool->thread_count; i++) {
         pthread_join(pool->threads[i], NULL);
     }
